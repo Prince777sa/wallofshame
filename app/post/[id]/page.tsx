@@ -11,6 +11,7 @@ interface Card {
   id: number;
   name: string;
   type: string;
+  industry: string | null;
   country: string;
   side: string;
   description: string;
@@ -201,6 +202,11 @@ export default function PostDetailPage() {
                 <Badge variant={card.type === "person" ? "default" : "secondary"}>
                   {card.type === "person" ? "Person" : "Organization"}
                 </Badge>
+                {card.industry && (
+                  <Badge variant="outline">
+                    {card.industry}
+                  </Badge>
+                )}
                 <Badge variant={card.side === "bad" ? "destructive" : "default"}>
                   {card.side === "bad" ? "Bad Guy" : "Good Guy"}
                 </Badge>

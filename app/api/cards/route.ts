@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, type, country, side, description, links, imageUrl } = body;
+    const { name, type, industry, country, side, description, links, imageUrl } = body;
 
     if (!name || !type || !country || !side || !description) {
       return NextResponse.json(
@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
     if (!["person", "organization"].includes(type.toLowerCase())) {
       return NextResponse.json(
         { error: "Type must be 'person' or 'organization'" },
+        { status: 400 }
+      );
+    }
+
+    if (!industry) {
+      return NextResponse.json(
+        { error: type.toLowerCase() === "organization" ? "Industry is required for organizations" : "Field is required for persons" },
         { status: 400 }
       );
     }
@@ -63,6 +70,7 @@ export async function POST(request: NextRequest) {
       .values({
         name,
         type: type.toLowerCase(),
+        industry: industry, // Both person fields and organization industries
         country,
         side: side.toLowerCase(),
         description,

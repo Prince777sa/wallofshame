@@ -32,12 +32,43 @@ interface Country {
   code: string;
 }
 
+const INDUSTRIES = [
+  "Technology & Digital",
+  "Finance & Business",
+  "Media & Entertainment",
+  "Consumer Goods & Retail",
+  "Healthcare & Pharma",
+  "Industrial & Manufacturing",
+  "Energy & Resources",
+  "Sports & Recreation",
+  "Education & Research",
+  "Hospitality & Travel",
+  "Legal & Government",
+  "Agriculture & Food",
+  "Logistics & Transportation",
+  "Other"
+];
+
+const FIELDS = [
+  "Politics & Government",
+  "Entertainment & Arts",
+  "Sports & Athletics",
+  "Media & Journalism",
+  "Business & Finance",
+  "Academia & Research",
+  "Religion & Spirituality",
+  "Activism & Advocacy",
+  "Legal & Justice",
+  "Other"
+];
+
 export default function CreatePostModal({ isOpen, onClose, onCardCreated }: CreatePostModalProps) {
   const [country, setCountry] = useState("");
   const [countries, setCountries] = useState<Country[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [type, setType] = useState<"person" | "organization" | "">("");
+  const [industry, setIndustry] = useState("");
   const [side, setSide] = useState<"good" | "bad" | "">("");
   const [description, setDescription] = useState("");
   const [links, setLinks] = useState<string[]>([""]);
@@ -120,6 +151,11 @@ export default function CreatePostModal({ isOpen, onClose, onCardCreated }: Crea
       return;
     }
 
+    if (!industry) {
+      setError(type === "organization" ? "Industry is required for organizations" : "Field is required for persons");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -142,6 +178,7 @@ export default function CreatePostModal({ isOpen, onClose, onCardCreated }: Crea
         body: JSON.stringify({
           name,
           type,
+          industry: industry, // Both person fields and organization industries go here
           country,
           side,
           description,
@@ -166,6 +203,7 @@ export default function CreatePostModal({ isOpen, onClose, onCardCreated }: Crea
       setImage(null);
       setName("");
       setType("");
+      setIndustry("");
       setSide("");
       setDescription("");
       setLinks([""]);
@@ -219,7 +257,12 @@ export default function CreatePostModal({ isOpen, onClose, onCardCreated }: Crea
             <Label htmlFor="type">
               Type <span className="text-destructive">*</span>
             </Label>
-            <Select value={type} onValueChange={(value) => setType(value as "person" | "organization")} required>
+            <Select value={type} onValueChange={(value) => {
+              setType(value as "person" | "organization");
+              if (value === "person") {
+                setIndustry("");
+              }
+            }} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select type..." />
               </SelectTrigger>
@@ -229,6 +272,48 @@ export default function CreatePostModal({ isOpen, onClose, onCardCreated }: Crea
               </SelectContent>
             </Select>
           </div>
+
+          {/* Field Dropdown - Only shown for Person */}
+          {type === "person" && (
+            <div className="space-y-2">
+              <Label htmlFor="field">
+                Field <span className="text-destructive">*</span>
+              </Label>
+              <Select value={industry} onValueChange={setIndustry} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select field..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {FIELDS.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Industry Dropdown - Only shown for Organizations */}
+          {type === "organization" && (
+            <div className="space-y-2">
+              <Label htmlFor="industry">
+                Industry <span className="text-destructive">*</span>
+              </Label>
+              <Select value={industry} onValueChange={setIndustry} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {INDUSTRIES.map((ind) => (
+                    <SelectItem key={ind} value={ind}>
+                      {ind}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Country Dropdown */}
           <div className="space-y-2">

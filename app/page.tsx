@@ -23,6 +23,7 @@ interface Card {
   id: number;
   name: string;
   type: string;
+  industry: string | null;
   country: string;
   side: string;
   description: string;
@@ -33,10 +34,41 @@ interface Card {
   createdAt: string;
 }
 
+const INDUSTRIES = [
+  "Technology & Digital",
+  "Finance & Business",
+  "Media & Entertainment",
+  "Consumer Goods & Retail",
+  "Healthcare & Pharma",
+  "Industrial & Manufacturing",
+  "Energy & Resources",
+  "Sports & Recreation",
+  "Education & Research",
+  "Hospitality & Travel",
+  "Legal & Government",
+  "Agriculture & Food",
+  "Logistics & Transportation",
+  "Other"
+];
+
+const FIELDS = [
+  "Politics & Government",
+  "Entertainment & Arts",
+  "Sports & Athletics",
+  "Media & Journalism",
+  "Business & Finance",
+  "Academia & Research",
+  "Religion & Spirituality",
+  "Activism & Advocacy",
+  "Legal & Justice",
+  "Other"
+];
+
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterIndustry, setFilterIndustry] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("latest");
   const [countries, setCountries] = useState<Country[]>([]);
@@ -81,6 +113,10 @@ export default function Home() {
       if (filterType !== "all" && card.type !== filterType) {
         return false;
       }
+      // Field/Industry filter
+      if (filterIndustry !== "all" && card.industry !== filterIndustry) {
+        return false;
+      }
       // Country filter
       if (filterCountry !== "all" && card.country !== filterCountry) {
         return false;
@@ -111,7 +147,7 @@ export default function Home() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterType, filterCountry, sortBy]);
+  }, [searchQuery, filterType, filterIndustry, filterCountry, sortBy]);
 
   return (
     <div className="min-h-screen p-4 sm:p-8 pb-20">
@@ -147,8 +183,13 @@ export default function Home() {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Select value={filterType} onValueChange={setFilterType}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <Select value={filterType} onValueChange={(value) => {
+              setFilterType(value);
+              if (value === "all") {
+                setFilterIndustry("all");
+              }
+            }}>
               <SelectTrigger>
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
@@ -158,6 +199,38 @@ export default function Home() {
                 <SelectItem value="organization">Organization</SelectItem>
               </SelectContent>
             </Select>
+
+            {filterType === "person" && (
+              <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Field" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="all">All Fields</SelectItem>
+                  {FIELDS.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {filterType === "organization" && (
+              <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Industry" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="all">All Industries</SelectItem>
+                  {INDUSTRIES.map((industry) => (
+                    <SelectItem key={industry} value={industry}>
+                      {industry}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             <Select value={filterCountry} onValueChange={setFilterCountry}>
               <SelectTrigger>
@@ -190,6 +263,7 @@ export default function Home() {
               onClick={() => {
                 setSearchQuery("");
                 setFilterType("all");
+                setFilterIndustry("all");
                 setFilterCountry("all");
                 setSortBy("latest");
               }}
@@ -226,6 +300,7 @@ export default function Home() {
                   id={card.id.toString()}
                   name={card.name}
                   type={card.type}
+                  industry={card.industry}
                   country={card.country}
                   side={card.side}
                   description={card.description}

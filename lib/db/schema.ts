@@ -4,6 +4,7 @@ export const cards = pgTable("cards", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   type: varchar("type", { length: 20 }).notNull().default("person"), // 'person' or 'organization'
+  industry: varchar("industry", { length: 100 }), // Industry category for organizations (null for persons)
   country: varchar("country", { length: 100 }).notNull(),
   side: varchar("side", { length: 10 }).notNull(), // 'good' or 'bad'
   description: text("description").notNull(),

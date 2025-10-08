@@ -10,6 +10,7 @@ interface PostCardProps {
   id: string;
   name: string;
   type: string;
+  industry?: string | null;
   country: string;
   side: string;
   description: string;
@@ -24,6 +25,7 @@ export default function PostCard({
   id,
   name,
   type,
+  industry,
   country,
   side,
   description,
@@ -66,7 +68,8 @@ export default function PostCard({
 
               <ul className="mt-1">
                 <li className="text-sm text-gray-500 dark:text-neutral-500">
-                  {type === "person" ? "Person" : "Organization"} · {country} · {side === "bad" ? "Bad Guy" : "Good Guy"}
+                  {type === "person" ? "Person" : "Organization"}
+                  {industry && ` · ${industry}`} · {country} · {side === "bad" ? "Bad Guy" : "Good Guy"}
                 </li>
               </ul>
             </div>
