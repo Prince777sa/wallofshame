@@ -33,11 +33,40 @@ export default function PostDetailPage() {
   const [userVote, setUserVote] = useState<"like" | "dislike" | null>(null);
   const [voting, setVoting] = useState(false);
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
+  const [linkTitles, setLinkTitles] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     fetchCard();
     fetchUserVote();
   }, [cardId]);
+
+  // Fetch link titles when card is loaded
+  useEffect(() => {
+    if (card?.links && card.links.length > 0) {
+      fetchLinkTitles(card.links);
+    }
+  }, [card?.links]);
+
+  const fetchLinkTitles = async (links: string[]) => {
+    const titles: { [key: string]: string } = {};
+
+    for (const link of links) {
+      try {
+        // Use our API route to fetch the page title (avoids CORS issues)
+        const response = await fetch(`/api/fetch-title?url=${encodeURIComponent(link)}`);
+        const data = await response.json();
+
+        if (data.title) {
+          titles[link] = data.title;
+        }
+      } catch (error) {
+        console.error(`Failed to fetch title for ${link}:`, error);
+        // Keep domain as fallback
+      }
+    }
+
+    setLinkTitles(titles);
+  };
 
   const fetchCard = async () => {
     try {
@@ -262,25 +291,50 @@ export default function PostDetailPage() {
 
             {/* Sources */}
             {card.links && card.links.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-neutral-700">
+              <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-neutral-700">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100">
                   Sources & References ({card.links.length})
                 </h2>
-                <ul className="space-y-2">
-                  {card.links.map((link: string, index: number) => (
-                    <li key={index}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {card.links.map((link: string, index: number) => {
+                    // Extract domain name for fallback
+                    let domain = "";
+                    try {
+                      const url = new URL(link);
+                      domain = url.hostname.replace("www.", "");
+                    } catch {
+                      domain = "External Source";
+                    }
+
+                    // Use fetched title or domain as fallback
+                    const title = linkTitles[link] || domain;
+
+                    return (
                       <a
+                        key={index}
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline"
+                        className="block p-4 border border-gray-200 dark:border-neutral-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all"
                       >
-                        <ExternalLink size={16} />
-                        <span className="break-all">{link}</span>
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-bold text-sm text-gray-900 dark:text-neutral-100 line-clamp-2">
+                              {title}
+                            </h3>
+                            <ExternalLink size={16} className="flex-shrink-0 text-gray-500" />
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                            {domain}
+                          </p>
+                          <p className="text-xs text-indigo-600 dark:text-indigo-400 break-all line-clamp-1">
+                            {link}
+                          </p>
+                        </div>
                       </a>
-                    </li>
-                  ))}
-                </ul>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

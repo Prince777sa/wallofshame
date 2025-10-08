@@ -41,3 +41,10 @@ export const disputes = pgTable("disputes", {
   reason: text("reason").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const linkTitles = pgTable("link_titles", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull().unique(),
+  title: text("title").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
