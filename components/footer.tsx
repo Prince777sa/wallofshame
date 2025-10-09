@@ -23,6 +23,12 @@ export default function Footer() {
               Home
             </Link>
             <Link
+              href="/stats"
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Stats
+            </Link>
+            <Link
               href="/about"
               className="text-sm font-medium text-white/80 hover:text-white transition-colors"
             >

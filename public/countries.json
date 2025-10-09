@@ -745,8 +745,20 @@
       "code": "AE"
     },
     {
-      "name": "United Kingdom",
-      "code": "GB"
+      "name": "England",
+      "code": "GB-ENG"
+    },
+    {
+      "name": "Scotland",
+      "code": "GB-SCT"
+    },
+    {
+      "name": "Wales",
+      "code": "GB-WLS"
+    },
+    {
+      "name": "Northern Ireland",
+      "code": "GB-NIR"
     },
     {
       "name": "United States",
